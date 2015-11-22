@@ -1,0 +1,100 @@
+command([put, the, cone, on, the, red, square, on, the, square]).
+command([take, the, cone, on, the, square]).
+command([take, the, block]).
+command([put, the, red, cone, on, the, square]).
+command([put, the, block, on, the, blue, square, on, the, square]).
+command([put, the, green, cone, on, the, blue, circle]).
+command([put, the, green, cone, on, the, red, square]).
+command([put, the, blue, block, on, the, red, square]).
+command([put, the, red, block, on, the, red, square]).
+command([put, the, red, cone, on, the, green, circle, on, the, square]).
+command([take, the, green, cube, on, the, red, circle]).
+command([take, the, blue, cube, on, the, green, circle]).
+command([put, the, block, on, the, circle, on, the, red, square]).
+command([take, the, cube]).
+command([take, the, block]).
+command([put, the, block, on, the, circle, on, the, square]).
+command([take, the, green, block]).
+command([take, the, cube, on, the, red, circle]).
+command([put, the, block, on, the, red, square]).
+command([put, the, block, on, the, square, on, the, red, circle]).
+command([take, the, cube]).
+command([put, the, red, cone, on, the, square]).
+command([put, the, cube, on, the, circle, on, the, red, circle]).
+command([put, the, blue, block, on, the, blue, square]).
+command([take, the, block, on, the, square]).
+command([take, the, red, block]).
+command([take, the, red, cube, on, the, square]).
+command([put, the, cone, on, the, red, square, on, the, red, square]).
+command([put, the, block, on, the, red, circle]).
+command([take, the, green, block]).
+command([put, the, block, on, the, red, circle]).
+command([put, the, blue, cube, on, the, red, square]).
+command([put, the, blue, block, on, the, blue, square]).
+command([take, the, cone]).
+command([put, the, cone, on, the, red, circle, on, the, square]).
+command([take, the, green, block]).
+command([put, the, cone, on, the, square, on, the, red, square]).
+command([put, the, cube, on, the, square, on, the, circle]).
+command([take, the, block, on, the, red, circle]).
+command([take, the, block]).
+command([put, the, red, cube, on, the, red, square]).
+command([take, the, blue, block]).
+command([take, the, block]).
+command([take, the, green, block]).
+command([put, the, blue, cube, on, the, square]).
+command([put, the, block, on, the, square, on, the, blue, circle]).
+command([put, the, cube, on, the, red, circle, on, the, red, square]).
+command([take, the, red, block]).
+command([put, the, blue, cube, on, the, green, circle]).
+command([put, the, red, block, on, the, blue, circle]).
+command([put, the, cube, on, the, square]).
+command([put, the, blue, cone, on, the, square, on, the, square]).
+command([put, the, cone, on, the, red, circle, on, the, square]).
+command([put, the, blue, block, on, the, red, circle]).
+command([put, the, cube, on, the, red, circle, on, the, circle]).
+command([take, the, cube]).
+command([put, the, blue, cone, on, the, circle]).
+command([take, the, cone]).
+command([put, the, blue, cone, on, the, red, circle, on, the, square]).
+command([put, the, red, cube, on, the, red, square]).
+command([put, the, block, on, the, blue, circle]).
+command([take, the, cube, on, the, circle]).
+command([put, the, cube, on, the, circle, on, the, circle]).
+command([put, the, block, on, the, red, square]).
+command([take, the, block, on, the, circle]).
+command([put, the, green, block, on, the, green, square]).
+command([take, the, red, block]).
+command([take, the, cone]).
+command([put, the, cube, on, the, square]).
+command([take, the, red, cone]).
+command([put, the, cone, on, the, square, on, the, red, circle]).
+command([put, the, red, cone, on, the, circle]).
+command([put, the, cone, on, the, circle, on, the, red, circle]).
+command([take, the, red, block, on, the, blue, square]).
+command([take, the, red, block]).
+command([take, the, block]).
+command([put, the, red, block, on, the, green, circle]).
+command([put, the, block, on, the, circle, on, the, circle]).
+command([put, the, cone, on, the, circle, on, the, red, circle]).
+command([put, the, red, block, on, the, circle]).
+command([put, the, cone, on, the, square]).
+command([put, the, block, on, the, blue, square, on, the, square]).
+command([put, the, cube, on, the, red, circle]).
+command([take, the, red, block]).
+command([put, the, red, block, on, the, circle, on, the, blue, square]).
+command([put, the, cube, on, the, red, square, on, the, circle]).
+command([put, the, blue, cone, on, the, blue, circle]).
+command([put, the, block, on, the, square]).
+command([put, the, cube, on, the, circle]).
+command([take, the, green, block]).
+command([put, the, red, cone, on, the, square, on, the, circle]).
+command([put, the, block, on, the, red, circle]).
+command([put, the, blue, cone, on, the, red, square]).
+command([put, the, red, cone, on, the, circle]).
+command([put, the, blue, cone, on, the, red, circle, on, the, circle]).
+command([take, the, blue, cone]).
+command([put, the, red, block, on, the, green, circle]).
+command([put, the, green, block, on, the, red, square]).
+command([put, the, cube, on, the, green, square]).
+command([take, the, blue, block]).

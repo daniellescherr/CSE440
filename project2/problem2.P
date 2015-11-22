@@ -1,0 +1,102 @@
+s(S0, S) :- 
+	v(S0, S1),
+	np(S1, S2), 
+	vp(S2, S).
+s(S0, S) :-
+	v(S0, S1),
+	np(S1, S).
+np(S0, S) :- 
+	det(S0, S1), 
+	n(S1, S).
+np(S0, S) :-
+        det(S0, S1), 
+        n(S1, S2),
+	pp(S2, S).
+np(S0, S) :-
+        det(S0, S1),
+        adj(S1, S2),
+        n(S2, S).
+np(S0, S) :-
+        det(S0, S1),
+        adj(S1, S2),
+        n(S2, S3),
+	pp(S3, S).
+vp(S0, S) :- 
+	v(S0, S1), 
+	np(S1, S). 
+
+vp(S0, S) :- 
+	v(S0, S).
+pp(S0, S) :-
+        p(S0, S1),
+        np(S1, S).
+pp(S0, S) :-
+        p(S0, S1),
+        np(S1, S2),
+        pp(S2, S).
+
+det([the|S], S). 
+n([cone|S], S). 
+n([square|S], S). 
+n([block|S], S). 
+n([circle|S], S). 
+n([cube|S], S). 
+v([take|S], S). 
+v([put|S], S). 
+adj([red|S], S). 
+adj([blue|S], S). 
+adj([green|S], S). 
+p([on|S], S).
+
+
+command(X) :-
+	s(X,[]) -> (printList(X));
+	write('I do not understand you, please try again.').
+
+
+
+
+printList([take|T]) :-
+	write('I have taken'),
+	printList(T).
+
+printList([put|T]) :-
+	write('I have put'),
+	printList(T).
+
+printList([the|T]) :-
+        write(' the'),
+        printList(T).
+
+printList([red|T]) :-
+        printList(T).
+printList([blue|T]) :-
+        printList(T).
+printList([green|T]) :-
+        printList(T).
+
+printList([cone|T]) :-
+        write(' cone'),
+        printList(T).
+printList([square|T]) :-
+        write(' square'),
+        printList(T).
+printList([block|T]) :-
+        write(' block'),
+        printList(T).
+printList([circle|T]) :-
+        write(' circle'),
+        printList(T).
+printList([cube|T]) :-
+        write(' cube'),
+        printList(T).
+
+printList([on|T]) :-
+        write(' on'),
+        printList(T).
+
+
+printList([_]) :-
+        write('.').
+
+

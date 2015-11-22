@@ -1,0 +1,37 @@
+%yellow-small
+%For your reference, the decision tree learned is the following. You don't have to use the same format. 
+%Each leaf node comes with the number of instances classified in that node.  
+%color = YELLOW
+%|   size = LARGE: F (4.0)
+%|   size = SMALL: T (8.0)
+%color = PURPLE: F (8.0)
+
+@relation set3
+
+@attribute color {YELLOW, PURPLE}
+@attribute size  {LARGE, SMALL}
+@attribute act {STRETCH, DIP}
+@attribute age {ADULT, CHILD}
+@attribute inflated {T, F}
+
+@data
+YELLOW,SMALL,STRETCH,ADULT,T
+YELLOW,SMALL,STRETCH,CHILD,T
+YELLOW,SMALL,DIP,ADULT,T
+YELLOW,SMALL,DIP,CHILD,T
+YELLOW,SMALL,STRETCH,ADULT,T
+YELLOW,SMALL,STRETCH,CHILD,T
+YELLOW,SMALL,DIP,ADULT,T
+YELLOW,SMALL,DIP,CHILD,T
+YELLOW,LARGE,STRETCH,ADULT,F
+YELLOW,LARGE,STRETCH,CHILD,F
+YELLOW,LARGE,DIP,ADULT,F
+YELLOW,LARGE,DIP,CHILD,F
+PURPLE,SMALL,STRETCH,ADULT,F
+PURPLE,SMALL,STRETCH,CHILD,F
+PURPLE,SMALL,DIP,ADULT,F
+PURPLE,SMALL,DIP,CHILD,F
+PURPLE,LARGE,STRETCH,ADULT,F
+PURPLE,LARGE,STRETCH,CHILD,F
+PURPLE,LARGE,DIP,ADULT,F
+PURPLE,LARGE,DIP,CHILD,F
