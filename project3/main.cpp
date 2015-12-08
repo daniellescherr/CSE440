@@ -26,52 +26,73 @@ int main(int argc, char * argv[])
 	}
 
 	string line;
-	string dataSetName = "";
+	string dataSetName = "", attributeName = "";
 
 	ifstream infile;
 	infile.open(string(argv[2]));
-
-
 
 	if (infile.is_open())
 	{
 		while (getline(infile, line))
 		{
-		   istringstream iss(line);
-		   vector<string> tokens;
-		   for (string word; getline(iss, word, ' '); tokens.push_back(word))
-		   {
-			   cout << "word: " << word << endl;
-		   }
+			// string nextLine = "", nextLineWord = "";
+			istringstream iss(line);
+			vector<string> tokens;
+			cout << "LINE: " << line << endl;
+			for (string word; getline(iss, word, ' '); tokens.push_back(word))
+			{
+				if (line.at(0) == '%') break;
 
+				string nextWord = "";
+				string categoryName = "";
+				if (word == "@relation")
+				{
+					getline(iss, nextWord, ' ');
+					dataSetName = nextWord;
+					cout << "    RELATION name: " << dataSetName << endl;
+				}
 
-			// string firstElem = string(line[0]);
-			// if (line[0] == '%') continue;
-			// if (line[0] == "@relation")
-			// {
-			// 	cout << "RELATION" << endl;
-			// 	dataSetName = line[1];
-			// }
+				else if (word == "@attribute")
+				{
+					// getline(infile, nextLineWord, ' ');
+					getline(iss, nextWord, ' ');
+					attributeName = nextWord;
+					cout << "    ATTRIBUTE name: " << attributeName << endl;
+					// getline(infile, nextLine);
+					// cout << "    nextLineWord: " << nextLineWord << endl;
+					// cout << "    next line: " << nextLine << endl;
+					// if (nextWord == "@attribute")
+					// {
+					// 	cout << "    next is also attribute, keep going" << endl;
+					// }
+					// else
+					// {
+					// 	categoryName = nextWord;
+					// 	cout << "    ELSE CATEGORY NAME: " << categoryName << endl;
+					// }
+					categoryName = word;
+					cout << "    CATEGORY NAME: " << categoryName << endl;
 
-			// else if (line[0] == "@attribute")
-			// {
-			// 	getline(infile, nextLine);
-			// 	if (nextLine[0] == "@attribute")
-			// 	{
-			// 		cout << line << " " << line2 << "keep going" << endl;
-			// 	}
-			// }
-
-			// std::istringstream iss(line);
-		    // string first_on_line;
-		    // if (iss >> first_on_line)
-			// {
-			// 	cout << "first: " << first_on_line << endl;
-			// }
-			//do some stuff
-
-		}
-	}
+				}
+				// else if (word == "@data")
+				// {
+				// 	cout << "YES" << endl;
+				// 	string dataLine = "";
+				// 	cout << "    DATA: " << word << endl;
+				// 	while (getline(infile, dataLine))
+				// 	{
+				// 		cout << "dataline: " << dataLine << endl;
+				// 		cout << "size: " << dataLine.length() << endl;
+				// 		istringstream iss(dataLine);
+				// 		if (dataLine.length() > 0)
+				// 			cout << "    data: " << dataLine << endl;
+				// 		else
+				// 			break;
+				// 	}
+				// }
+			}
+	   }
+   }
 	// else
 	// 	cout << "unable to open file";
 	//
