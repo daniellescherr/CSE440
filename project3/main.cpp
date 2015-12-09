@@ -14,14 +14,16 @@
 #include <vector>
 #include <sstream>
 #include <math.h>
+#include <map>
 
 using std::cout; using std::cin; using std::endl;
 using std::string; using std::vector; using std::ifstream;
 using std::istringstream; using std::stringstream;
+using std::map; using std::remove;
 
-int countInstances(vector<string> data, int attributeCount, string desired)
+int countInstances(vector<string> data, int attributeCount, string desired, int desiredPos)
 {
-	cout << "data: " << attributeCount << ", " << desired << endl;
+	cout << "number of attributes: " << attributeCount << ", looking for: " << desired << endl;
 	int positive = 0;
 	int totalData = data.size();
 	for (int i = 0; i < totalData; i++)
@@ -33,43 +35,57 @@ int countInstances(vector<string> data, int attributeCount, string desired)
 		{
 			// cout << "COUNT: " << j << " count: " << attributeCount << endl;
 			getline(iss, value, ',');
-			// cout << "value: " << value << endl;
-			if (j == attributeCount)		//T F indicator
+			cout << "value: " << value << " at " << j << endl;
+			if (j == desiredPos)
 			{
 				if (strncmp (value.c_str(), desired.c_str(), 1) == 0)
 				{
-					// cout << "TRUE" << endl;
+					cout << "TRUE" << endl;
 					positive++;
 				}
 				break;
 			}
 		}
 	}
-	cout << desired << " was present " << positive << " out of: " << totalData << endl;
+	cout << desired << " was present " << positive << " out of " << totalData << endl;
 
 	return positive;
 }
 
-float CalculateLogValue(float frac)
+float CalculateLogValue(float frac1, float frac2)
 {
-	return (-frac*log2(frac));
+	return (-frac1*log2(frac1) + -frac2*log2(frac2));
 }
 
-// float CalculateInformationGain()
-// {
-//
-// }
-
-void GenerateDecisionTree(vector<string> attributes, int attributeCount, vector<string> data)
+float CalculateEntropy(vector<string> data, int attributeCount)
 {
-	int trueCount = countInstances(data, attributeCount, "T");
+	int trueCount = countInstances(data, attributeCount, "T", 5);
 	float trueFrac = (float)trueCount/float(data.size());
-	cout << " frac: " << trueFrac << " log: " << CalculateLogValue(trueFrac) << endl;
+	// cout << " frac: " << trueFrac << " log: " << CalculateLogValue(trueFrac, 1-trueFrac) << endl;
+	return CalculateLogValue(trueFrac, 1-trueFrac);
+}
 
+float CalculateInformationGain(vector<string> data, int attributeCount, string attribute)
+{
+	//TODO this isn't entirely right- the calculation is off :(
+	cout << "info gain for: " << attribute << endl;
+	int attributeTrueCount = countInstances(data, attributeCount, "SMALL", 0);
+	float attributeFrac = (float)attributeTrueCount/float(data.size());
+	return CalculateLogValue(attributeFrac, 1-attributeFrac);
+}
 
+void GenerateDecisionTree(vector<string> attributes, int attributeCount, map<string, vector<string>> attributeValues, vector<string> data)
+{
+	float entropy = CalculateEntropy(data, attributeCount);
+	cout << "entropy: " << entropy << endl;
+
+	//TODO for all attributes associated with size, etc
+	float gain = CalculateInformationGain(data, attributeCount, attributes[0]);
+	cout << "gain for: " << attributes[0] << " (not really) is " << gain << endl;
 
 	// for (int i = 0; i < attributes.size(); i++)
 	// {
+		//attributeValues[attributes[i]] returns vector
 		//CalculateInformationGain
 		//add to gain vector
 	// }
@@ -91,6 +107,7 @@ int main(int argc, char * argv[])
 	int attributeCount = 0;
 	vector<string> instances;
 	vector<string> attributes;
+	map<string, vector<string>> attributeValues;
 
 	ifstream infile;
 	infile.open(string(argv[2]));
@@ -112,7 +129,7 @@ int main(int argc, char * argv[])
 				{
 					getline(iss, nextWord, ' ');
 					dataSetName = nextWord;
-					cout << "    RELATION name: " << dataSetName << endl;
+					// cout << "    RELATION name: " << dataSetName << endl;
 				}
 				else if (word == "@attribute")
 				{
@@ -122,7 +139,17 @@ int main(int argc, char * argv[])
 					cout << "    ATTRIBUTE name: " << attributeName << endl;
 					attributes.push_back(attributeName);
 					categoryName = nextWord;
-					cout << "    CATEGORY NAME: " << categoryName << endl;
+					// cout << "    CATEGORY NAME: " << categoryName << endl;
+					// cout << "attributes " << endl;
+					while (getline(iss, nextWord, ' '))
+					{
+						remove(nextWord.begin(), nextWord.end(), '{');
+						remove(nextWord.begin(), nextWord.end(), '}');
+						remove(nextWord.begin(), nextWord.end(), ',');
+						cout << "        word:" << nextWord << endl;
+						attributeValues.insert(std::make_pair(attributeName, attributes));
+
+					}
 					attributeCount++;
 				}
 				else if (strncmp (word.c_str(), "@data",5) == 0)
@@ -130,7 +157,7 @@ int main(int argc, char * argv[])
 					string dataLine = "";
 					while (getline(infile, dataLine))
 					{
-						cout << "dataline: " << dataLine << endl;
+						// cout << "dataline: " << dataLine << endl;
 						instances.push_back(dataLine);
 						dataInstancesCount++;
 					}
@@ -140,7 +167,7 @@ int main(int argc, char * argv[])
    }
 	cout << "The number of training instances: " << dataInstancesCount << endl;
 	attributeCount--;
-	GenerateDecisionTree(attributes, attributeCount, instances);
+	GenerateDecisionTree(attributes, attributeCount, attributeValues, instances);
 
 	infile.close();
 	return 0;
