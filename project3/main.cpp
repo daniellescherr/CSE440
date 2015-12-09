@@ -18,6 +18,58 @@ using std::cout; using std::cin; using std::endl;
 using std::string; using std::vector; using std::ifstream;
 using std::istringstream; using std::stringstream;
 
+int countInstances(vector<string> data, int attributeCount, int valuePosition, string desired)
+{
+	int positive = 0;
+	int totalData = data.size();
+	for (int i = 0; i < totalData; i++)
+	{
+		istringstream iss(data[i]);
+		string attribute = data[i];
+		string value = "";
+		for (int j = 1; j <= attributeCount; j++)		//
+		{
+			// cout << "COUNT: " << j << " count: " << attributeCount << endl;
+			getline(iss, value, ',');
+			// cout << "value: " << value << " ";
+			if (j == valuePosition)		//T F indicator
+			{
+				if (strncmp (value.c_str(), desired.c_str(), 1) == 0)
+				{
+					positive++;
+				}
+				break;
+			}
+		}
+	}
+	cout << desired << " was present " << positive << " out of: " << totalData << endl;
+
+	return positive;
+}
+
+// float CalculateInformationGain()
+// {
+//
+// }
+
+void GenerateDecisionTree(vector<string> attributes,int attributeCount, vector<string> data)
+{
+	int trueCount = countInstances(data, attributeCount, 5, "T");
+	float trueFrac = trueCount/(data.size());
+	vector<float> gain;
+
+
+
+	// for (int i = 0; i < attributes.size(); i++)
+	// {
+		//CalculateInformationGain
+		//add to gain vector
+	// }
+	//max of information gain is root
+}
+
+
+
 int main(int argc, char * argv[])
 {
 	if ((argc != 3) || (string(argv[1]) != "DT")) {
@@ -27,6 +79,10 @@ int main(int argc, char * argv[])
 
 	string line;
 	string dataSetName = "", attributeName = "";
+	int dataInstancesCount = 0;
+	int attributeCount = 0;
+	vector<string> instances;
+	vector<string> attributes;
 
 	ifstream infile;
 	infile.open(string(argv[2]));
@@ -35,10 +91,9 @@ int main(int argc, char * argv[])
 	{
 		while (getline(infile, line))
 		{
-			// string nextLine = "", nextLineWord = "";
 			istringstream iss(line);
 			vector<string> tokens;
-			cout << "LINE: " << line << endl;
+			// cout << "LINE: " << line << endl;
 			for (string word; getline(iss, word, ' '); tokens.push_back(word))
 			{
 				if (line.at(0) == '%') break;
@@ -51,51 +106,33 @@ int main(int argc, char * argv[])
 					dataSetName = nextWord;
 					cout << "    RELATION name: " << dataSetName << endl;
 				}
-
 				else if (word == "@attribute")
 				{
 					// getline(infile, nextLineWord, ' ');
 					getline(iss, nextWord, ' ');
 					attributeName = nextWord;
 					cout << "    ATTRIBUTE name: " << attributeName << endl;
-					// getline(infile, nextLine);
-					// cout << "    nextLineWord: " << nextLineWord << endl;
-					// cout << "    next line: " << nextLine << endl;
-					// if (nextWord == "@attribute")
-					// {
-					// 	cout << "    next is also attribute, keep going" << endl;
-					// }
-					// else
-					// {
-					// 	categoryName = nextWord;
-					// 	cout << "    ELSE CATEGORY NAME: " << categoryName << endl;
-					// }
-					categoryName = word;
+					attributes.push_back(attributeName);
+					categoryName = nextWord;
 					cout << "    CATEGORY NAME: " << categoryName << endl;
-
+					attributeCount++;
 				}
-				// else if (word == "@data")
-				// {
-				// 	cout << "YES" << endl;
-				// 	string dataLine = "";
-				// 	cout << "    DATA: " << word << endl;
-				// 	while (getline(infile, dataLine))
-				// 	{
-				// 		cout << "dataline: " << dataLine << endl;
-				// 		cout << "size: " << dataLine.length() << endl;
-				// 		istringstream iss(dataLine);
-				// 		if (dataLine.length() > 0)
-				// 			cout << "    data: " << dataLine << endl;
-				// 		else
-				// 			break;
-				// 	}
-				// }
+				else if (strncmp (word.c_str(), "@data",5) == 0)
+				{
+					string dataLine = "";
+					while (getline(infile, dataLine))
+					{
+						// cout << "dataline: " << dataLine << endl;
+						instances.push_back(dataLine);
+						dataInstancesCount++;
+					}
+				}
 			}
 	   }
    }
-	// else
-	// 	cout << "unable to open file";
-	//
+	cout << "The number of training instances: " << dataInstancesCount << endl;
+	// attributeCount--;
+	GenerateDecisionTree(attributes, attributeCount, instances);
 
 	infile.close();
 	return 0;
