@@ -13,13 +13,15 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <math.h>
 
 using std::cout; using std::cin; using std::endl;
 using std::string; using std::vector; using std::ifstream;
 using std::istringstream; using std::stringstream;
 
-int countInstances(vector<string> data, int attributeCount, int valuePosition, string desired)
+int countInstances(vector<string> data, int attributeCount, string desired)
 {
+	cout << "data: " << attributeCount << ", " << desired << endl;
 	int positive = 0;
 	int totalData = data.size();
 	for (int i = 0; i < totalData; i++)
@@ -27,15 +29,16 @@ int countInstances(vector<string> data, int attributeCount, int valuePosition, s
 		istringstream iss(data[i]);
 		string attribute = data[i];
 		string value = "";
-		for (int j = 1; j <= attributeCount; j++)		//
+		for (int j = 0; j <= attributeCount; j++)		//
 		{
 			// cout << "COUNT: " << j << " count: " << attributeCount << endl;
 			getline(iss, value, ',');
-			// cout << "value: " << value << " ";
-			if (j == valuePosition)		//T F indicator
+			// cout << "value: " << value << endl;
+			if (j == attributeCount)		//T F indicator
 			{
 				if (strncmp (value.c_str(), desired.c_str(), 1) == 0)
 				{
+					// cout << "TRUE" << endl;
 					positive++;
 				}
 				break;
@@ -47,16 +50,21 @@ int countInstances(vector<string> data, int attributeCount, int valuePosition, s
 	return positive;
 }
 
+float CalculateLogValue(float frac)
+{
+	return (-frac*log2(frac));
+}
+
 // float CalculateInformationGain()
 // {
 //
 // }
 
-void GenerateDecisionTree(vector<string> attributes,int attributeCount, vector<string> data)
+void GenerateDecisionTree(vector<string> attributes, int attributeCount, vector<string> data)
 {
-	int trueCount = countInstances(data, attributeCount, 5, "T");
-	float trueFrac = trueCount/(data.size());
-	vector<float> gain;
+	int trueCount = countInstances(data, attributeCount, "T");
+	float trueFrac = (float)trueCount/float(data.size());
+	cout << " frac: " << trueFrac << " log: " << CalculateLogValue(trueFrac) << endl;
 
 
 
@@ -122,7 +130,7 @@ int main(int argc, char * argv[])
 					string dataLine = "";
 					while (getline(infile, dataLine))
 					{
-						// cout << "dataline: " << dataLine << endl;
+						cout << "dataline: " << dataLine << endl;
 						instances.push_back(dataLine);
 						dataInstancesCount++;
 					}
@@ -131,7 +139,7 @@ int main(int argc, char * argv[])
 	   }
    }
 	cout << "The number of training instances: " << dataInstancesCount << endl;
-	// attributeCount--;
+	attributeCount--;
 	GenerateDecisionTree(attributes, attributeCount, instances);
 
 	infile.close();
