@@ -20,7 +20,7 @@ using std::cout; using std::cin; using std::endl;
 using std::string; using std::vector; using std::ifstream;
 using std::istringstream; using std::stringstream;
 using std::map; using std::remove; using std::make_pair;
-using std::pair;
+using std::pair; using std::sort;
 
 
 
@@ -66,8 +66,8 @@ pair<int, int> countInstances(vector<string> data, int attributeCount, string de
 
 float CalculateLogValue(float frac1, float frac2)
 {
-	cout << "frac1 " << frac1 << endl;
-	cout << "frac2 " << frac2 << endl;
+	// cout << "frac1 " << frac1 << endl;
+	// cout << "frac2 " << frac2 << endl;
 
 	return ((frac1 == 0) ? 0 : -frac1*log2(frac1) + ((frac2 == 0) ? 0 : -frac2*log2(frac2)));
 }
@@ -108,20 +108,12 @@ float CalculateInformationGain(vector<string> data, int attributeCount, vector<s
 
 void GenerateDecisionTree(vector<string> attributes, int attributeCount, map<string, vector<string>> attributeValues, vector<string> data)
 {
+	string root = "";
 	float entropy = CalculateEntropy(data, attributeCount);
 	cout << "entropy: " << entropy << endl;
 
 
-	//for all keys in map
-	// for (map<string,vector<string>>::iterator it=attributeValues.begin(); it!=attributeValues.end(); ++it)
-	// {
-    // 	cout << "iterating " << it->first << endl;
-		// for (int i = 0; i < it->second.size(); i++)
-		// {
-			// cout << "    element: " << it->second[i] << endl;
-
-
-			cout << "calculating info gain" << endl;
+			// cout << "calculating info gain" << endl;
 
 			float gainSize = CalculateInformationGain(data, attributeCount, attributeValues["size"], 0);
 			cout << endl << endl;
@@ -129,21 +121,20 @@ void GenerateDecisionTree(vector<string> attributes, int attributeCount, map<str
 			cout << endl << endl;
 			float gainShape = CalculateInformationGain(data, attributeCount, attributeValues["shape"], 2);
 
-			// float gainSizeDiff = entropy - gainSize;
-			// cout << "gain for: " << it->second[i] << " (not really) is " << gain << endl;
 
-		// }
-		// cout << "gain for: " << attributeValues[0] << " (not really) is " << gain << endl;
+			float gainSizeDiff = entropy - gainSize;
+			float gainColorDiff = entropy - gainColor;
+			float gainShapeDiff = entropy - gainShape;
+			vector<float> vect = {gainSizeDiff, gainColorDiff, gainShapeDiff};
+			sort(vect.begin(), vect.end());
+			// cout << "MAX: " << vect[vect.size()-1];
+			if (gainSizeDiff == vect[vect.size()-1]) root = "SIZE";
+			else if (gainColorDiff == vect[vect.size()-1]) root = "COLOR";
+			else if (gainShapeDiff == vect[vect.size()-1]) root = "SHAPE";
 
-	// }
+			cout << "ROOT: " << root << endl;
 
-	// for (int i = 0; i < attributes.size(); i++)
-	// {
-		//attributeValues[attributes[i]] returns vector
-		//CalculateInformationGain
-		//add to gain vector
-	// }
-	//max of information gain is root
+
 }
 
 
