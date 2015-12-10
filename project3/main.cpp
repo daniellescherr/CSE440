@@ -29,6 +29,7 @@ pair<int, int> countInstances(vector<string> data, int attributeCount, string de
 	cout << "number of attributes: " << attributeCount << ", looking for: " << desired << " at " << desiredPos << endl;
 	int present = 0, positive = 0;
 	int totalData = data.size();
+	// cout << "data size: " << totalData << endl;
 	for (int i = 0; i < totalData; i++)
 	{
 		istringstream iss(data[i]);
@@ -106,6 +107,7 @@ float CalculateLogValue(float frac1, float frac2)
 
 float CalculateEntropy(vector<string> data, int attributeCount)
 {
+	// cout << "data num: " << data.size() << endl;
 	pair<int, int> trueCount = countInstances(data, attributeCount, "T", attributeCount);
 	float trueFrac = (float)trueCount.first/float(data.size());
 	// cout << " frac: " << trueFrac << " log: " << CalculateLogValue(trueFrac, 1-trueFrac) << endl;
@@ -123,9 +125,9 @@ float CalculateInformationGain(vector<string> data, int attributeCount, vector<s
 		cout << "    calculating for: " << attributes[i] << endl;
 		pair<int, int> attributeTrueCount = countInstances(data, attributeCount, attributes[i], index);
 		cout << attributes[i] << " was present " << attributeTrueCount.first << " out of " << data.size() << " and positive " << attributeTrueCount.second << endl;
-		float attributeFrac = (float)attributeTrueCount.first/float(data.size());
+		float attributeFrac = (attributeTrueCount.first == 0 || attributeTrueCount.second == 0) ? 0 : (float)attributeTrueCount.first/float(data.size());
 		// cout << "attributeFrac: " << attributeFrac << endl;
-		float logFrac = (float)(attributeTrueCount.second/(float)attributeTrueCount.first);
+		float logFrac = (attributeTrueCount.first == 0 || attributeTrueCount.second == 0) ? 0 : (float)(attributeTrueCount.second/(float)attributeTrueCount.first);
 		float logVal = CalculateLogValue(logFrac, 1-logFrac);
 		// cout << "logVal: " << logVal << endl;
 		attributeGain += attributeFrac * logVal;
@@ -169,17 +171,56 @@ void GenerateDecisionTree(int attributeCount, map<string, vector<string>> attrib
 	//TODO loop through for iterations
 
 	cout << "children " << endl;
-	for (int i = 0; i < attributeValues["size"].size(); i++)
+	cout << "entropy for " << root << endl;
+	// cout << "this: " << attributeValues["size"][0] << endl;
+	vector<string> childData = createNewData(data, /*attributeValues["size"][i]*/ "BIG");
+	for (auto elem : childData)
 	{
-		cout << "entropy for " << attributeValues["size"][i] << endl;
-		vector<string> childData = createNewData(data, attributeValues["size"][i]);
-		// for (auto elem : childData)
-		// {
-		// 	cout << "elem: " << elem << endl;
-		// }
-		float childEntropy = CalculateEntropy(childData, attributeCount - i - 1);
-		cout << "child entropy " << childEntropy << endl;
+		cout << "elem: " << elem << endl;
 	}
+	int childAttributeCount = attributeCount - 1;
+	// cout << "child data size " << childData.size() << endl;
+	float childEntropy = CalculateEntropy(childData, childAttributeCount);
+	cout << "child entropy " << childEntropy << endl;
+
+
+
+	cout << endl << "calculating next step" << endl;
+	if (root == "SIZE")
+	{
+		string child = "";
+		//TODO change index to match new data spots
+		float childGainColor = CalculateInformationGain(childData, childAttributeCount, attributeValues["color"], 0);
+		float childGainShape = CalculateInformationGain(childData, childAttributeCount, attributeValues["shape"], 1);
+
+
+		float childGainColorDiff = childEntropy - childGainColor;
+		float childGainShapeDiff = childEntropy - childGainShape;
+		cout << "childGainColorDiff " << childGainColorDiff << endl;
+		cout << "childGainShapeDiff " << childGainShapeDiff << endl;
+
+		vector<float> childVect = {childGainColorDiff, childGainShapeDiff};
+		sort(childVect.begin(), childVect.end());
+		// cout << "MAX: " << vect[vect.size()-1];
+		if (childGainColorDiff == childVect[childVect.size()-1]) child = "COLOR";
+		else if (childGainShapeDiff == childVect[childVect.size()-1]) child = "SHAPE";
+
+		cout << "CHILD: " << child << endl << endl << endl;
+
+
+	}
+	else if (root == "COLOR")
+	{
+		float childGainSize = CalculateInformationGain(childData, childAttributeCount, attributeValues["size"], 1);
+
+		float gainSizeDiff = entropy - gainSize;
+
+	}
+	else if (root == "SHAPE")
+	{
+		;
+	}
+
 }
 
 
