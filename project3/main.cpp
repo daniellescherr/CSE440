@@ -64,6 +64,38 @@ pair<int, int> countInstances(vector<string> data, int attributeCount, string de
 	return make_pair(present, positive);
 }
 
+vector<string> createNewData(vector<string> data, string desired)
+{
+	// cout << "looking for: " << desired << endl;
+	int present = 0, positive = 0;
+	int totalData = data.size();
+	vector<string> newData;
+	for (int i = 0; i < totalData; i++)
+	{
+		istringstream iss(data[i]);
+		string attribute = data[i];
+		string value = "";
+		// cout << "attribute " << attribute << endl;
+		// cout << "looking for: " << desired << endl;
+		//TODO for some reason "small" doesn't work
+		int loc = attribute.find(desired);
+		// cout << "found at: " << loc << endl;
+		if (loc == 0)
+		{
+			attribute.erase(0, desired.length() + 1);
+			// cout << "new string: " << attribute << endl;
+			newData.push_back(attribute);
+		}
+		else if (loc > 0)
+		{
+			attribute.erase(loc, desired.length() + 1);
+			// cout << "new string: " << attribute << endl;
+			newData.push_back(attribute);
+		}
+	}
+	return newData;
+}
+
 float CalculateLogValue(float frac1, float frac2)
 {
 	// cout << "frac1 " << frac1 << endl;
@@ -106,35 +138,48 @@ float CalculateInformationGain(vector<string> data, int attributeCount, vector<s
 	return attributeGain;
 }
 
-void GenerateDecisionTree(vector<string> attributes, int attributeCount, map<string, vector<string>> attributeValues, vector<string> data)
+void GenerateDecisionTree(int attributeCount, map<string, vector<string>> attributeValues, vector<string> data)
 {
 	string root = "";
 	float entropy = CalculateEntropy(data, attributeCount);
 	cout << "entropy: " << entropy << endl;
 
 
-			// cout << "calculating info gain" << endl;
+	// cout << "calculating info gain" << endl;
 
-			float gainSize = CalculateInformationGain(data, attributeCount, attributeValues["size"], 0);
-			cout << endl << endl;
-			float gainColor = CalculateInformationGain(data, attributeCount, attributeValues["color"], 1);
-			cout << endl << endl;
-			float gainShape = CalculateInformationGain(data, attributeCount, attributeValues["shape"], 2);
-
-
-			float gainSizeDiff = entropy - gainSize;
-			float gainColorDiff = entropy - gainColor;
-			float gainShapeDiff = entropy - gainShape;
-			vector<float> vect = {gainSizeDiff, gainColorDiff, gainShapeDiff};
-			sort(vect.begin(), vect.end());
-			// cout << "MAX: " << vect[vect.size()-1];
-			if (gainSizeDiff == vect[vect.size()-1]) root = "SIZE";
-			else if (gainColorDiff == vect[vect.size()-1]) root = "COLOR";
-			else if (gainShapeDiff == vect[vect.size()-1]) root = "SHAPE";
-
-			cout << "ROOT: " << root << endl;
+	float gainSize = CalculateInformationGain(data, attributeCount, attributeValues["size"], 0);
+	cout << endl;
+	float gainColor = CalculateInformationGain(data, attributeCount, attributeValues["color"], 1);
+	cout << endl;
+	float gainShape = CalculateInformationGain(data, attributeCount, attributeValues["shape"], 2);
 
 
+	float gainSizeDiff = entropy - gainSize;
+	float gainColorDiff = entropy - gainColor;
+	float gainShapeDiff = entropy - gainShape;
+	vector<float> vect = {gainSizeDiff, gainColorDiff, gainShapeDiff};
+	sort(vect.begin(), vect.end());
+	// cout << "MAX: " << vect[vect.size()-1];
+	if (gainSizeDiff == vect[vect.size()-1]) root = "SIZE";
+	else if (gainColorDiff == vect[vect.size()-1]) root = "COLOR";
+	else if (gainShapeDiff == vect[vect.size()-1]) root = "SHAPE";
+
+	cout << "ROOT: " << root << endl << endl << endl;
+
+	//TODO loop through for iterations
+
+	cout << "children " << endl;
+	for (int i = 0; i < attributeValues["size"].size(); i++)
+	{
+		cout << "entropy for " << attributeValues["size"][i] << endl;
+		vector<string> childData = createNewData(data, attributeValues["size"][i]);
+		// for (auto elem : childData)
+		// {
+		// 	cout << "elem: " << elem << endl;
+		// }
+		float childEntropy = CalculateEntropy(childData, attributeCount - i - 1);
+		cout << "child entropy " << childEntropy << endl;
+	}
 }
 
 
@@ -153,6 +198,7 @@ int main(int argc, char * argv[])
 	vector<string> instances;
 	vector<string> attributes;
 	map<string, vector<string>> attributeValues;
+	map<string, vector<string>> newData;
 
 	ifstream infile;
 	infile.open(string(argv[2]));
@@ -215,7 +261,7 @@ int main(int argc, char * argv[])
 	cout << "The number of training instances: " << dataInstancesCount << endl;
 	attributeCount--;
 	attributeValues.erase(categoryName);
-	GenerateDecisionTree(attributes, attributeCount, attributeValues, instances);
+	GenerateDecisionTree(attributeCount, attributeValues, instances);
 
 	infile.close();
 	return 0;
