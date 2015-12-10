@@ -35,13 +35,13 @@ int countInstances(vector<string> data, int attributeCount, string desired, int 
 		{
 			// cout << "COUNT: " << j << " count: " << attributeCount << endl;
 			getline(iss, value, ',');
-			cout << "value: " << value << " at " << j << endl;
+			// cout << "value: " << value << " at " << j << endl;
 			if (j == desiredPos)
 			{
-				cout << "checking for match between " << value.c_str() << endl; cout << "    and " << desired.c_str() << endl;
+				cout << "checking to match " << desired.c_str() << endl;
 				if (strncmp (value.c_str(), desired.c_str(), 1) == 0)
 				{
-					cout << "TRUE" << endl;
+					// cout << "TRUE" << endl;
 					positive++;
 				}
 				break;
@@ -66,13 +66,19 @@ float CalculateEntropy(vector<string> data, int attributeCount)
 	return CalculateLogValue(trueFrac, 1-trueFrac);
 }
 
-float CalculateInformationGain(vector<string> data, int attributeCount, string attribute)
+float CalculateInformationGain(vector<string> data, int attributeCount, vector<string> attributes)
 {
-	//TODO this isn't entirely right- the calculation is off :(
-	cout << "info gain for: " << attribute << endl;
-	int attributeTrueCount = countInstances(data, attributeCount, "SMALL", 0);
-	float attributeFrac = (float)attributeTrueCount/float(data.size());
-	return CalculateLogValue(attributeFrac, 1-attributeFrac);
+	// cout << "info gain for: " << attribute << endl;
+	// vector<string> vecAtt = attributeValues[attribute];
+
+	for (int i = 0; i < attributes.size(); i++)
+	{
+		cout << "    calculating for: " << attributes[i] << endl;
+	}
+	// int attributeTrueCount = countInstances(data, attributeCount, "SMALL", 0);
+	// float attributeFrac = (float)attributeTrueCount/float(data.size());
+	// return CalculateLogValue(attributeFrac, 1-attributeFrac);
+	return 5;
 }
 
 void GenerateDecisionTree(vector<string> attributes, int attributeCount, map<string, vector<string>> attributeValues, vector<string> data)
@@ -80,9 +86,22 @@ void GenerateDecisionTree(vector<string> attributes, int attributeCount, map<str
 	float entropy = CalculateEntropy(data, attributeCount);
 	cout << "entropy: " << entropy << endl;
 
-	//TODO for all attributes associated with size, etc
-	float gain = CalculateInformationGain(data, attributeCount, attributes[0]);
-	cout << "gain for: " << attributes[0] << " (not really) is " << gain << endl;
+
+	//for all keys in map
+	for (map<string,vector<string>>::iterator it=attributeValues.begin(); it!=attributeValues.end(); ++it)
+	{
+    	cout << "iterating " << it->first << endl;
+		// for (int i = 0; i < it->second.size(); i++)
+		// {
+			// cout << "    element: " << it->second[i] << endl;
+			float gain = CalculateInformationGain(data, attributeCount, it->second);
+
+			// cout << "gain for: " << it->second[i] << " (not really) is " << gain << endl;
+
+		// }
+		// cout << "gain for: " << attributeValues[0] << " (not really) is " << gain << endl;
+
+	}
 
 	// for (int i = 0; i < attributes.size(); i++)
 	// {
@@ -103,7 +122,7 @@ int main(int argc, char * argv[])
 	}
 
 	string line;
-	string dataSetName = "", attributeName = "";
+	string dataSetName = "", attributeName = "", categoryName = "";
 	int dataInstancesCount = 0;
 	int attributeCount = 0;
 	vector<string> instances;
@@ -125,7 +144,6 @@ int main(int argc, char * argv[])
 				if (line.at(0) == '%') break;
 
 				string nextWord = "";
-				string categoryName = "";
 				if (word == "@relation")
 				{
 					getline(iss, nextWord, ' ');
@@ -138,7 +156,7 @@ int main(int argc, char * argv[])
 					getline(iss, nextWord, ' ');
 					attributeName = nextWord;
 					cout << "    ATTRIBUTE name: " << attributeName << endl;
-					attributes.push_back(attributeName);
+					// attributes.push_back(attributeName);
 					categoryName = nextWord;
 					// cout << "    CATEGORY NAME: " << categoryName << endl;
 					// cout << "attributes " << endl;
@@ -146,11 +164,14 @@ int main(int argc, char * argv[])
 					{
 						remove(nextWord.begin(), nextWord.end(), '{');
 						remove(nextWord.begin(), nextWord.end(), '}');
-						remove(nextWord.begin(), nextWord.end(), ',');
+						nextWord.erase(remove(nextWord.begin(), nextWord.end(), ','), nextWord.end());
 						cout << "        word:" << nextWord << endl;
-						attributeValues.insert(std::make_pair(attributeName, attributes));
+						attributes.push_back(nextWord);
 
 					}
+					attributeValues.insert(std::make_pair(attributeName, attributes));
+					attributes.clear();
+
 					attributeCount++;
 				}
 				else if (strncmp (word.c_str(), "@data",5) == 0)
@@ -168,6 +189,7 @@ int main(int argc, char * argv[])
    }
 	cout << "The number of training instances: " << dataInstancesCount << endl;
 	attributeCount--;
+	attributeValues.erase(categoryName);
 	GenerateDecisionTree(attributes, attributeCount, attributeValues, instances);
 
 	infile.close();
