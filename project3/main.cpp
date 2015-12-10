@@ -23,7 +23,7 @@ using std::map; using std::remove;
 
 int countInstances(vector<string> data, int attributeCount, string desired, int desiredPos)
 {
-	cout << "number of attributes: " << attributeCount << ", looking for: " << desired << endl;
+	cout << "number of attributes: " << attributeCount << ", looking for: " << desired << " at " << desiredPos << endl;
 	int positive = 0;
 	int totalData = data.size();
 	for (int i = 0; i < totalData; i++)
@@ -38,6 +38,7 @@ int countInstances(vector<string> data, int attributeCount, string desired, int 
 			cout << "value: " << value << " at " << j << endl;
 			if (j == desiredPos)
 			{
+				cout << "checking for match between " << value.c_str() << endl; cout << "    and " << desired.c_str() << endl;
 				if (strncmp (value.c_str(), desired.c_str(), 1) == 0)
 				{
 					cout << "TRUE" << endl;
@@ -59,7 +60,7 @@ float CalculateLogValue(float frac1, float frac2)
 
 float CalculateEntropy(vector<string> data, int attributeCount)
 {
-	int trueCount = countInstances(data, attributeCount, "T", 5);
+	int trueCount = countInstances(data, attributeCount, "T", attributeCount);
 	float trueFrac = (float)trueCount/float(data.size());
 	// cout << " frac: " << trueFrac << " log: " << CalculateLogValue(trueFrac, 1-trueFrac) << endl;
 	return CalculateLogValue(trueFrac, 1-trueFrac);
