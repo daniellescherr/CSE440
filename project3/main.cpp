@@ -26,39 +26,51 @@ using std::pair; using std::sort;
 
 pair<int, int> countInstances(vector<string> data, int attributeCount, string desired, int desiredPos)
 {
-	// cout << "number of attributes: " << attributeCount << ", looking for: " << desired << " at " << desiredPos << endl;
+	// cout << "number of attributes: " << attributeCount;
+	// cout << "looking for: " << desired << endl;// << " at " << desiredPos << endl;
 	int present = 0, positive = 0;
 	int totalData = data.size();
 	// cout << "data size: " << totalData << endl;
 	for (int i = 0; i < totalData; i++)
 	{
-		istringstream iss(data[i]);
-		string attribute = data[i];
-		string value = "";
-		for (int j = 0; j <= attributeCount; j++)		//
-		{
-			// cout << "COUNT: " << j << " count: " << attributeCount << endl;
-			getline(iss, value, ',');
-			// cout << "value: " << value << " at " << j << endl;
-			if (j == desiredPos)
+		string line = data[i];
+		string comma = ",";
+
+		size_t pos = 0;
+		string token;
+		// std::cout << "line " << line << std::endl;
+		while ((pos = line.find(comma)) != std::string::npos) {
+		    token = line.substr(0, pos);
+		    // std::cout << "token" << token << std::endl;
+			// if (token == desired){ cout << "increasing present " << endl; present++; }
+			if (strncmp (token.c_str(), desired.c_str(), desired.length()) == 0)
 			{
-				// cout << "checking to match " << desired.c_str() << endl;
-				if (strncmp (value.c_str(), desired.c_str(), 1) == 0)
+				/*cout << "increasing present " << endl;*/
+				present++;
+				string boolean = line.substr(line.length() - 2, line.length() - 1);
+				// cout << "bool " << boolean << endl;
+				if (strncmp(boolean.c_str(), "T", 1) == 0)
 				{
-					if (j != attributeCount)
-					{
-						// cout << "not at end, but match, checking for positive";
-						string boolean = "";
-						while(getline(iss, boolean, ',')){};
-						// cout << " boolean " << boolean << endl;
-						if (strncmp (boolean.c_str(), "T",1) == 0) positive++;
-					}
-					// cout << "TRUE" << endl;
-					present++;
+					positive++;
 				}
-				break;
+			}
+
+		    line.erase(0, pos + comma.length());
+		}
+		// std::cout << "string after " << s << std::endl;
+		char boolean = line.at(0);
+		// cout << "bool " << boolean << endl;
+
+		if (boolean == 'T')
+		{
+			// cout << "desired: " << desired << endl;
+			if (desired == "T")
+			{
+				present++;
+				positive++;
 			}
 		}
+
 	}
 	// cout << desired << " was present " << present << " out of " << totalData << " and positive " << positive << endl;
 
@@ -115,26 +127,38 @@ float CalculateEntropy(vector<string> data, int attributeCount)
 	return CalculateLogValue(trueFrac, 1-trueFrac);
 }
 
-float CalculateInformationGain(vector<string> data, int attributeCount, vector<string> attributes, int index)
+float CalculateInformationGain(vector<string> data, int attributeCount, string attribute, int index, map<string, vector<string>> attributeValues)
 {
 	float attributeGain = 0;
 	// cout << "size " << attributes.size() << endl;
-	for (int i = 0; i < attributes.size(); i++)
-	{
-		// cout << i << "    calculating for: " << attributes[i] << endl;
-		// for (auto d : data) cout << "        data " << d << endl;
-		pair<int, int> attributeTrueCount = countInstances(data, attributeCount, attributes[i], index);
-		cout << attributes[i] << endl; cout << "          was present " << attributeTrueCount.first << " out of " << data.size() << " and positive " << attributeTrueCount.second << endl;
-		float attributeFrac = (attributeTrueCount.first == 0 || attributeTrueCount.second == 0) ? 0 : (float)attributeTrueCount.first/float(data.size());
-		// cout << "attributeFrac: " << attributeFrac << endl;
-		float logFrac = (attributeTrueCount.first == 0 || attributeTrueCount.second == 0) ? 0 : (float)(attributeTrueCount.second/(float)attributeTrueCount.first);
-		float logVal = CalculateLogValue(logFrac, 1-logFrac);
-		// cout << "logVal: " << logVal << endl;
-		attributeGain += attributeFrac * logVal;
-		// cout << "new gain " << attributeGain << endl << endl;
+	// map<string, vector<string>> childAttributeData;
+	//
+	// cout << "looking for " << attribute << endl;
+	for(auto attName : attributeValues) {
+		if (attName.first != attribute) continue;
+		for(auto vec : attName.second) {
 
+		    // cout << "key: " << attName.first << " -> ";
+		    // cout << vec << endl;
+			// if (attribute.length() <= 0) return 0;
+			// cout << "    calculating for: " << vec << endl;
+			// for (auto d : data) cout << "        data " << d << endl;
+			pair<int, int> attributeTrueCount = countInstances(data, attributeCount, vec, index);
+			cout << vec << endl; cout << "        was present " << attributeTrueCount.first << " out of " << data.size() << " and positive " << attributeTrueCount.second << endl;
+			float attributeFrac = (attributeTrueCount.first == 0 || attributeTrueCount.second == 0) ? 0 : (float)attributeTrueCount.first/float(data.size());
+			// cout << "attributeFrac: " << attributeFrac << endl;
+			float logFrac = (attributeTrueCount.first == 0 || attributeTrueCount.second == 0) ? 0 : (float)(attributeTrueCount.second/(float)attributeTrueCount.first);
+			float logVal = CalculateLogValue(logFrac, 1-logFrac);
+			// cout << "logVal: " << logVal << endl;
+			attributeGain += attributeFrac * logVal;
+			index++;
+		}
 	}
-	// cout << "total gain " << attributeGain << endl;
+
+		// cout << "additional gain " << attributeFrac * logVal << endl << endl;
+
+	// }
+	cout << "total gain " << attributeGain << endl;
 
 
 	return attributeGain;
@@ -142,170 +166,219 @@ float CalculateInformationGain(vector<string> data, int attributeCount, vector<s
 
 void GenerateDecisionTree(int attributeCount, map<string, vector<string>> attributeValues, vector<string> data, vector<string> attributeNames)
 {
+
+	for(auto attName : attributeValues) {
+		for(auto vec : attName.second) {
+
+		    cout << "key: " << attName.first << " -> ";
+		    cout << vec << endl;
+		}
+	}
+
 	string root = "";
 	float entropy = CalculateEntropy(data, attributeCount);
-	cout << "entropy: " << entropy << endl;
+	cout << "entropy: " << entropy << endl << endl << endl;
 
 
 	// cout << "calculating info gain" << endl;
+	map<string, float> attrMap;
 
-	float gainSize = CalculateInformationGain(data, attributeCount, attributeValues["size"], 0);
-	cout << endl;
-	float gainColor = CalculateInformationGain(data, attributeCount, attributeValues["color"], 1);
-	cout << endl;
-	float gainShape = CalculateInformationGain(data, attributeCount, attributeValues["shape"], 2);
-
-
-	float gainSizeDiff = entropy - gainSize;
-	float gainColorDiff = entropy - gainColor;
-	float gainShapeDiff = entropy - gainShape;
-	vector<float> vect = {gainSizeDiff, gainColorDiff, gainShapeDiff};
-	sort(vect.begin(), vect.end());
-	// cout << "MAX: " << vect[vect.size()-1];
-	if (gainSizeDiff == vect[vect.size()-1]) root = "size";
-	else if (gainColorDiff == vect[vect.size()-1]) root = "color";
-	else if (gainShapeDiff == vect[vect.size()-1]) root = "shape";
-
-	cout << "ROOT: " << root << endl << endl << endl;
-
-	vector<string> childData;
-	vector<float> childEntropyVector;
-	int childAttributeCount = 0;
-	float childEntropy = 0;
-	string nextChild = "";
-	cout << "entropy for " << root << endl;
-
-	map<string, vector<string>> childAttributeData;
-
-
-
-
-	//TODO loop through for iterations
-	for (int i = 0; i < attributeNames.size()-1; i++)
+	// cout << "names size " << attributeNames.size() << endl;
+	// for (auto a : attributeNames) cout << a << endl;
+	for (int i = 0; i < attributeNames.size(); i++ )
 	{
-		// cout << "i " << i << endl;
-		map<string, vector<string>> attributeValuesCopy = attributeValues;
-		cout << endl << "this: " << attributeValuesCopy[attributeNames[0]][i] << endl;
-		childData = createNewData(data, attributeValuesCopy[attributeNames[0]][i]);
-		for (auto elem : childData)
-		{
-			cout << "elem: " << elem << endl;
-		}
-		childAttributeData.insert(make_pair(attributeValuesCopy[attributeNames[0]][i], childData));
-		childAttributeCount = attributeCount - 1;
-		// cout << "child data size " << childData.size() << endl;
-		float childEntropyTemp = (childData.size() == 0) ? 0 : CalculateEntropy(childData, childAttributeCount);
-		childEntropyVector.push_back(childEntropyTemp);
-		childEntropy += childEntropyTemp;
-		cout << "accumulated child entropy " << childEntropy << endl;
-		sort(childEntropyVector.begin(), childEntropyVector.end());
-		float max = childEntropyVector[childEntropyVector.size()-1];
-		cout << "MAX entropy: " << max << endl;
-		if (childEntropyTemp == max) nextChild = attributeValuesCopy[attributeNames[0]][i];
+		cout << "calculating for attribute " << attributeNames[i] << endl;
+		float gainAttr = CalculateInformationGain(data, attributeCount, attributeNames[i], 0, attributeValues);
+		float gainAttrDiff = entropy - gainAttr;
+		cout << "gain diff " << gainAttrDiff << endl;
+		attrMap[attributeNames[i]] = gainAttrDiff;
 
-		// for(auto attName : attributeValuesCopy) {
-		// 	for(auto vec : attName.second) {
-		// 	    cout << "key: " << attName.first << " -> ";
-		// 	    cout << vec << endl;
-		// 	}
-		// }
-		// cout << "erasing" << endl;
-		attributeValuesCopy.erase(attributeNames[i]);
-		// cout << "done" << endl;
 	}
-
-	cout << "GOING TO " << nextChild << endl;
-	cout << "***************************************************************************************" << endl;
-
-
-
-	cout << endl << endl << endl << "calculating next info gain, removing root " << root << endl;
-	vector<string>::iterator found = find(attributeNames.begin(), attributeNames.end(), root);
-	// cout << "found at " << *found << endl;
-	if (found != attributeNames.end())
-		attributeNames.erase(found);
-	attributeValues.erase(root);
-	// for(auto attName : attributeValues) {
-	// 	for(auto vec : attName.second) {
-	// 		cout << "key: " << attName.first << " -> ";
-	// 		cout << vec << endl;
-	// 	}
+	for(auto attName : attrMap) {
+		    cout << "THIS key: " << attName.first << " -> " << attName.second << endl;
+	}
+	//
+	// float attrMax = 0;
+	// for (auto it=attrMap.begin(); it!=attrMap.end(); ++it)
+	// {
+    // 	float num = it->first;
+	// 	cout << "num: " << num << endl;
+	// 	if (num >= attrMax) root = it->second;
 	// }
 
-	// for (auto att : attributeNames) cout << "att " << att << endl;
+	auto it=attrMap.begin();
+	// cout << "it first " << it->first << endl;
+	// cout << "it sec " << it->second << endl;
+	if (attrMap["size"] == it->second) root = "size";
+	else if (attrMap["act"] == it->second) root = "act";
+	else if (attrMap["age"] == it->second) root = "age";
+	else root = "color";
 
+
+	cout << "ROOT: " << root << endl << endl;
+	cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+
+
+	
+
+
+
+
+
+	//
+	// vector<string> childData;
+	// vector<float> childEntropyVector;
+	// int childAttributeCount = 0;
+	// float childEntropy = 0;
+	// string nextChild = "";
+	// // cout << "entropy for " << root << endl;
+	//
+	// map<string, vector<string>> childAttributeData;
+	//
+	// // for(auto attName : attributeValues) {
+	// // 	for(auto vec : attName.second) {
+	// //
+	// // 	    cout << "key: " << attName.first << " -> ";
+	// // 	    cout << vec << endl;
+	// // 	}
+	// // }
+	//
+	// cout << "remaining attributes " << endl;
+	// 	for (auto att : attributeNames) cout << "    " << att << endl;
+	//
+	// // cout << "attribute size " << attributeNames.size() << endl;
+	// // cout << "item " << attributeNames[0] << endl;
+	//
+	//
+	// //TODO loop through for iterations
 	// for (int i = 0; i < attributeNames.size()-1; i++)
 	// {
-		// cout << "in for                                         " << attributeNames[i] << endl;
-		// cout << "is this right " << attributeValues[attributeNames[i]][i] << endl;
-		if (root == "size")
-		{
-
-			// cout << "in here " << endl;
-			// for (int i = 0; i < attributeCount; i++)
-			// {
-				// for(auto attName : attributeValues) {
-				// 	for(auto vec : attName.second) {
-				// 	    cout << "    key: " << attName.first << " -> ";
-				// 	    cout << vec << endl;
-				// 	}
-				// }
-
-				// for(auto attName : childAttributeData) {
-				// 	for(auto vec : attName.second) {
-				// 		cout << "key: " << attName.first << " -> ";
-				// 		cout << vec << endl;
-				// 		// childData.push_back(vec);
-				// 	}
-				// }
-
-				childData = childAttributeData[nextChild];
-				for (auto c : childData) cout << "child data " << c << endl;
-				string child = "";
-				//TODO change index to match new data spots when using her examples
-				// float childGainColor = CalculateInformationGain(childData, childAttributeCount, attributeValues[attributeNames[i]], 0);
-				// float childGainShape = CalculateInformationGain(childData, childAttributeCount, attributeValues[attributeNames[i]], 1);
-				float childGainColor = CalculateInformationGain(childData, childAttributeCount, attributeValues["color"], 0);
-				float childGainShape = CalculateInformationGain(childData, childAttributeCount, attributeValues["shape"], 1);
-
-				cout << "child entropy " << childEntropy << endl;
-				cout << "childGainColor " << childGainColor << endl;
-				cout << "childGainShape " << childGainShape << endl;
-
-				float childGainColorDiff = childEntropy - childGainColor;
-				float childGainShapeDiff = childEntropy - childGainShape;
-				cout << "childGainColorDiff " << childGainColorDiff << endl;
-				cout << "childGainShapeDiff " << childGainShapeDiff << endl;
-
-				vector<float> childVect = {childGainColorDiff, childGainShapeDiff};
-				sort(childVect.begin(), childVect.end());
-				cout << "MAX: " << childVect[childVect.size()-1] << endl;
-				if (childGainColorDiff == childVect[childVect.size()-1]) child = "COLOR";
-				else if (childGainShapeDiff == childVect[childVect.size()-1]) child = "SHAPE";
-
-				cout << "CHILD: " << child << endl << endl << endl;
-
-				cout << "GOING TO " << child << endl;
-				cout << "-----------------------------------------------------------------------------------" << endl;
-
-
-
-
-
-			// }
-		}
-		else if (root == "color")
-		{
-			float childGainSize = CalculateInformationGain(childData, childAttributeCount, attributeValues["size"], 1);
-
-			float gainSizeDiff = entropy - gainSize;
-
-		}
-		else if (root == "shape")
-		{
-			;
-		}
+	// 	// cout << "i " << i << endl;
+	// 	map<string, vector<string>> attributeValuesCopy = attributeValues;
+	// 	// if (attributeValuesCopy[attributeNames[0]][i] == "") break;
+	//
+	// 	// cout << attributeNames[0] << endl;
+	// 	string newAttr = attributeValuesCopy[attributeNames[0]][i];
+	//
+	// 	// cout << endl << "this: " << newAttr << endl;
+	// 	if (newAttr.length() <= 0) continue;
+	// 	childData = createNewData(data, attributeValuesCopy[attributeNames[0]][i]);
+	// 	cout << "New data set after iteration: " << endl;
+	// 	for (auto elem : childData)
+	// 	{
+	// 		cout << "    " << elem << endl;
+	// 	}
+	// 	childAttributeData.insert(make_pair(attributeValuesCopy[attributeNames[0]][i], childData));
+	// 	childAttributeCount = attributeCount - 1;
+	// 	// cout << "child data size " << childData.size() << endl;
+	// 	float childEntropyTemp = (childData.size() == 0) ? 0 : CalculateEntropy(childData, childAttributeCount);
+	// 	childEntropyVector.push_back(childEntropyTemp);
+	// 	childEntropy += childEntropyTemp;
+	// 	cout << "accumulated child entropy " << childEntropy << endl;
+	// 	sort(childEntropyVector.begin(), childEntropyVector.end());
+	// 	float max = childEntropyVector[childEntropyVector.size()-1];
+	// 	cout << "MAX entropy: " << max << endl;
+	// 	if (childEntropyTemp == max) nextChild = attributeValuesCopy[attributeNames[0]][i];
+	//
+	//
+	// 	// cout << "erasing" << attributeNames[i] << endl;
+	// 	// attributeValuesCopy.erase(attributeNames[i]);
+	// 	// for(auto attName : attributeValuesCopy) {
+	// 	// 	for(auto vec : attName.second) {
+	// 	// 	    cout << "key: " << attName.first << " -> ";
+	// 	// 	    cout << vec << endl;
+	// 	// 	}
+	// 	// }
 	// }
+	//
+	// cout << "GOING TO " << nextChild << endl;
+	// cout << "***************************************************************************************" << endl;
+	//
+	//
+	//
+	// // cout << endl << endl << endl << "calculating next info gain, removing root " << root << endl;
+	// vector<string>::iterator found = find(attributeNames.begin(), attributeNames.end(), root);
+	// // cout << "found at " << *found << endl;
+	// if (found != attributeNames.end())
+	// 	attributeNames.erase(found);
+	// attributeValues.erase(root);
+	// // for(auto attName : attributeValues) {
+	// // 	for(auto vec : attName.second) {
+	// // 		cout << "key: " << attName.first << " -> ";
+	// // 		cout << vec << endl;
+	// // 	}
+	// // }
+	//
+	//
+	// // for (int i = 0; i < attributeNames.size()-1; i++)
+	// // {
+	// 	// cout << "in for                                         " << attributeNames[i] << endl;
+	// 	// cout << "is this right " << attributeValues[attributeNames[i]][i] << endl;
+	// 	//todo other ifs
+	// 	if (root == "size")
+	// 	{
+	// 		cout << "in here att count " << attributeCount << endl;
+	// 		for (int i = 0; i < attributeCount - 1; i++)
+	// 		{
+	// 			if (i == attributeCount - 2)
+	// 			{
+	// 				cout << "GOING TO " << attributeNames[i] << endl;
+	// 				cout << "-----------------------------------------------------------------------------------" << endl;
+	// 				break;
+	// 			}
+	// 			cout << "ATTRIBUTE: " << attributeNames[i] << endl;
+	//
+	// 			childData = childAttributeData[nextChild];
+	// 			for (auto c : childData) cout << "child data " << c << endl;
+	// 			string child = "";
+	// 			//TODO change index to match new data spots when using her examples
+	// 			// float childGainColor = CalculateInformationGain(childData, childAttributeCount, attributeValues[attributeNames[i]], 0);
+	// 			// float childGainShape = CalculateInformationGain(childData, childAttributeCount, attributeValues[attributeNames[i]], 1);
+	// 			float childGainColor = CalculateInformationGain(childData, childAttributeCount, attributeValues["color"], 0);
+	// 			float childGainAct = CalculateInformationGain(childData, childAttributeCount, attributeValues["act"], 1);
+	// 			float childGainAge = CalculateInformationGain(childData, childAttributeCount, attributeValues["age"], 2);
+	//
+	// 			cout << "child entropy " << childEntropy << endl;
+	// 			// cout << "childGainColor " << childGainColor << endl;
+	// 			// cout << "childGainShape " << childGainShape << endl;
+	//
+	// 			float childGainColorDiff = childEntropy - childGainColor;
+	// 			float childGainAgeDiff = childEntropy - childGainAge;
+	// 			float childGainActDiff = childEntropy - childGainAct;
+	// 			cout << "childGainColorDiff " << childGainColorDiff << endl;
+	// 			cout << "childGainAgeDiff " << childGainAgeDiff << endl;
+	// 			cout << "childGainActDiff " << childGainActDiff << endl;
+	//
+	// 			vector<float> childVect = {childGainColorDiff, childGainAgeDiff, childGainActDiff};
+	// 			sort(childVect.begin(), childVect.end());
+	// 			cout << "MAX: " << childVect[childVect.size()-1] << endl;
+	// 			if (childGainColorDiff == childVect[childVect.size()-1]) child = "color";
+	// 			else if (childGainAgeDiff == childVect[childVect.size()-1]) child = "age";
+	// 			else if (childGainActDiff == childVect[childVect.size()-1]) child = "act";
+	//
+	//
+	// 			cout << "GOING TO " << child << endl;
+	// 			cout << "-----------------------------------------------------------------------------------" << endl;
+	//
+	//
+	// 		}
+	// 	}
+	// 	// else if (root == "color")
+	// 	// {
+	// 	// 	float childGainSize = CalculateInformationGain(childData, childAttributeCount, attributeValues["size"], 1);
+	// 	//
+	// 	// 	float gainSizeDiff = entropy - gainSize;
+	// 	//
+	// 	// }
+	// 	// else if (root == "age")
+	// 	// {
+	// 	// 	;
+	// 	// }
+	// 	// else if (root == "act")
+	// 	// {
+	// 	// 	;
+	// 	// }
+	// // }
 
 }
 
@@ -361,6 +434,7 @@ int main(int argc, char * argv[])
 					// cout << "attributes " << endl;
 					while (getline(iss, nextWord, ' '))
 					{
+						if (nextWord.length() <= 0) continue;
 						remove(nextWord.begin(), nextWord.end(), '{');
 						remove(nextWord.begin(), nextWord.end(), '}');
 						nextWord.erase(remove(nextWord.begin(), nextWord.end(), ','), nextWord.end());
@@ -389,6 +463,8 @@ int main(int argc, char * argv[])
    }
 	cout << "The number of training instances: " << dataInstancesCount << endl;
 	attributeCount--;
+	// cout << "categoryName" << categoryName << endl;
+	attributeNames.erase(attributeNames.begin() + 4);
 	attributeValues.erase(categoryName);
 	GenerateDecisionTree(attributeCount, attributeValues, instances, attributeNames);
 
