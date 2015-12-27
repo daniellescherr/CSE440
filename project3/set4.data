@@ -1,0 +1,13 @@
+@relation set1
+
+@attribute size {BIG, MEDIUM, SMALL}
+@attribute color {GREEN, RED}
+@attribute shape {CIRCLE, TRIANGLE, SQUARE}
+@attribute inflated {T, F}
+
+@data
+BIG,GREEN,CIRCLE,T
+MEDIUM,RED,TRIANGLE,T
+BIG,GREEN,SQUARE,T
+SMALL,GREEN,CIRCLE,F
+BIG,RED,SQUARE,F
